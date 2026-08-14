@@ -1,12 +1,58 @@
 # Kalcite Editor
 
-Native graphical editor for a Kalcite project directory. It reads `.kscn` scenes
-through `kalcite-scene` and node metadata from `kalcite-project`.
+`kalcite-editor` is the native graphical editor for Kalcite project directories.
+It edits `.kscn` scene sources directly and reads project metadata from the
+versioned Kalcite core crates.
 
-```sh
-cargo run -p kalcite-editor -- examples/game_project
+## Features
+
+- scene hierarchy and typed inspector;
+- resource browser and node palette;
+- 320×240 2D viewport with grid, zoom, and snapping;
+- script, signals, resources, profiler, and tilemap tabs;
+- undo/redo, immediate validation, and diagnostics console.
+
+## Install and run
+
+Rust 1.88 or newer is required.
+
+```bash
+cargo install --path .
+kalcite-editor /path/to/kalcite-project
 ```
 
-The interface includes the scene hierarchy, a typed inspector, resource browser,
-node palette, a 320×240 2D viewport, undo/redo history, immediate validation,
-and a diagnostics console.
+For development:
+
+```bash
+cargo run -- /path/to/kalcite-project
+```
+
+When no path is supplied, the editor opens the current directory. A valid
+project contains `kalcite.toml`; use the main Kalcite CLI to create one:
+
+```bash
+kalcite init MyGame --name MyGame
+```
+
+## Core compatibility
+
+The editor is an independent product. Its `kalcite-*` dependencies are pinned
+to one tagged Kalcite core release. Update them together when supporting a new
+core version, then regenerate `Cargo.lock` and run the full test suite.
+
+## Development
+
+```bash
+cargo fmt --all -- --check
+cargo test
+cargo clippy --all-targets
+```
+
+See [the development guide](docs/DEVELOPMENT.md) for contribution and release
+rules.
+
+## Related projects
+
+- [Kalcite core](https://github.com/Kalcite-Engine/kalcite)
+- [Kalcite LSP](https://github.com/Kalcite-Engine/kalcite-lsp)
+- [Kalcite documentation](https://kalcite-engine.github.io/kalcite-docs/)
