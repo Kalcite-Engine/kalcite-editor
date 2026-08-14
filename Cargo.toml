@@ -3,7 +3,7 @@ name = "kalcite-editor"
 version = "0.14.0"
 edition = "2024"
 license = "MIT"
-rust-version = "1.85"
+rust-version = "1.88"
 description = "Native graphical editor for Kalcite projects"
 repository = "https://github.com/Kalcite-Engine/kalcite-editor"
 
