@@ -16,6 +16,10 @@ versioned Kalcite core crates.
 
 Rust 1.88 or newer is required.
 
+For the recommended full-toolchain setup, install
+[Kallyup](https://github.com/Kalcite-Engine/kallyup) and run `kallyup install full`.
+Manual installation remains available:
+
 ```bash
 cargo install --path .
 kalcite-editor /path/to/kalcite-project
