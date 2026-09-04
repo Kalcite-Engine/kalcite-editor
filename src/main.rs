@@ -2106,7 +2106,7 @@ impl Editor {
             while x <= world.right() {
                 painter.line_segment(
                     [Pos2::new(x, world.top()), Pos2::new(x, world.bottom())],
-                    Stroke::new(1.0, Color32::from_gray(47)),
+                    Stroke::new(1.0_f32, Color32::from_gray(47)),
                 );
                 x += step;
             }
@@ -2114,7 +2114,7 @@ impl Editor {
             while y <= world.bottom() {
                 painter.line_segment(
                     [Pos2::new(world.left(), y), Pos2::new(world.right(), y)],
-                    Stroke::new(1.0, Color32::from_gray(47)),
+                    Stroke::new(1.0_f32, Color32::from_gray(47)),
                 );
                 y += step;
             }
@@ -2122,7 +2122,7 @@ impl Editor {
         painter.rect_stroke(
             world,
             0.0,
-            Stroke::new(2.0, Color32::from_rgb(110, 194, 255)),
+            Stroke::new(2.0_f32, Color32::from_rgb(110, 194, 255)),
             egui::StrokeKind::Middle,
         );
         painter.text(
@@ -2161,9 +2161,9 @@ impl Editor {
             };
             let stroke = Stroke::new(
                 if self.selected == Some(index) {
-                    2.5
+                    2.5_f32
                 } else {
-                    1.0
+                    1.0_f32
                 },
                 color,
             );
