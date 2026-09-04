@@ -29,6 +29,14 @@ fn snap_to_grid(value: f32, enabled: bool) -> f32 {
     klc_editor::editor_snap_milli((value * 1000.0).round() as i32, enabled) as f32 / 1000.0
 }
 
+fn circle_radius(value_width: f32, value_height: f32) -> f32 {
+    klc_editor::editor_circle_radius_milli(
+        (value_width * 1000.0).round() as i32,
+        (value_height * 1000.0).round() as i32,
+    ) as f32
+        / 1000.0
+}
+
 fn main() -> eframe::Result<()> {
     let project = std::env::args()
         .nth(1)
@@ -2046,7 +2054,7 @@ impl Editor {
                         .is_some_and(|t| t == "CollisionShape2D")
                         && node.properties.get("shape").is_some_and(|s| s == "circle")
                     {
-                        let radius = ((w.abs().max(h.abs())) / 2.0).max(1.0).round();
+                        let radius = circle_radius(w, h).round();
                         node.properties.insert("radius".into(), radius.to_string());
                     }
                 } else {
@@ -2406,5 +2414,12 @@ mod tests {
         assert_eq!(snap_to_grid(4.1, true), 8.0);
         assert_eq!(snap_to_grid(-4.1, true), -8.0);
         assert_eq!(snap_to_grid(3.9, false), 3.9);
+    }
+
+    #[test]
+    fn collision_radius_policy_is_compiled_from_klc() {
+        assert_eq!(circle_radius(48.0, 20.0), 24.0);
+        assert_eq!(circle_radius(-7.0, 10.0), 5.0);
+        assert_eq!(circle_radius(0.0, 0.0), 1.0);
     }
 }

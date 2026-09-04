@@ -8,3 +8,17 @@ public i32 editor_snap_milli(i32 value, bool enabled) {
     if value >= 0 { return ((value + half) / step) * step; }
     return ((value - half) / step) * step;
 }
+
+// Collision-shape sizing follows the same fixed-point boundary. The host
+// supplies milli-pixels; KLC chooses the max axis and enforces a 1px minimum.
+public i32 editor_circle_radius_milli(i32 width, i32 height) {
+    i32 absolute_width = width;
+    i32 absolute_height = height;
+    if absolute_width < 0 { absolute_width = 0 - absolute_width; }
+    if absolute_height < 0 { absolute_height = 0 - absolute_height; }
+    i32 largest = absolute_width;
+    if absolute_height > largest { largest = absolute_height; }
+    i32 radius = largest / 2;
+    if radius < 1000 { return 1000; }
+    return radius;
+}
