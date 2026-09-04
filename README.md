@@ -12,9 +12,23 @@ versioned Kalcite core crates.
 - script, signals, resources, profiler, and tilemap tabs;
 - undo/redo, immediate validation, and diagnostics console.
 
+## KLC execution in the editor
+
+The editor is currently a native Rust host, but its viewport snap,
+zoom-dependent grid density, and collision-radius policies are implemented in
+`src/editor_core.klc` and compiled to Rust during the Cargo build. This is an
+executable migration boundary: KLC owns deterministic fixed-point editor
+policy while the host owns platform windows, file I/O, and eframe integration.
+Future editor subsystems can move across this boundary incrementally; the
+project does not claim a 70% KLC implementation yet.
+
 ## Install and run
 
 Rust 1.88 or newer is required.
+
+For the recommended full-toolchain setup, install
+[Kallyup](https://github.com/Kalcite-Engine/kallyup) and run `kallyup install full`.
+Manual installation remains available:
 
 ```bash
 cargo install --path .
@@ -36,9 +50,11 @@ kalcite init MyGame --name MyGame
 
 ## Core compatibility
 
-The editor is an independent product. Its `kalcite-*` dependencies are pinned
-to one tagged Kalcite core release. Update them together when supporting a new
-core version, then regenerate `Cargo.lock` and run the full test suite.
+The editor is an independent product. Its runtime `kalcite-*` dependencies are
+pinned to one tagged Kalcite core release. The KLC build pipeline is pinned to
+one explicit compiler revision until that library emitter is included in the
+next tag. Update each group together, regenerate `Cargo.lock`, and run the
+full test suite.
 
 ## Development
 

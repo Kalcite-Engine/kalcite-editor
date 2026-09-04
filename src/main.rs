@@ -14,6 +14,33 @@ use kalcite_project::{
 };
 use kalcite_scene::{Connection, Node, Scene};
 
+#[allow(
+    dead_code,
+    unused_mut,
+    unused_parens,
+    clippy::manual_range_contains,
+    clippy::needless_return
+)]
+mod klc_editor {
+    include!(concat!(env!("OUT_DIR"), "/editor_core.rs"));
+}
+
+fn snap_to_grid(value: f32, enabled: bool) -> f32 {
+    klc_editor::editor_snap_milli((value * 1000.0).round() as i32, enabled) as f32 / 1000.0
+}
+
+fn circle_radius(value_width: f32, value_height: f32) -> f32 {
+    klc_editor::editor_circle_radius_milli(
+        (value_width * 1000.0).round() as i32,
+        (value_height * 1000.0).round() as i32,
+    ) as f32
+        / 1000.0
+}
+
+fn grid_step(zoom: f32) -> f32 {
+    klc_editor::editor_grid_step_milli((zoom * 1000.0).round() as i32) as f32 / 1000.0
+}
+
 fn main() -> eframe::Result<()> {
     let project = std::env::args()
         .nth(1)
@@ -2019,25 +2046,11 @@ impl Editor {
                     let h = prop_num(node, "height").unwrap_or(24) as f32 + delta.y;
                     node.properties.insert(
                         "width".into(),
-                        (if self.snap {
-                            (w / 8.0).round() * 8.0
-                        } else {
-                            w
-                        })
-                        .max(1.0)
-                        .round()
-                        .to_string(),
+                        snap_to_grid(w, self.snap).max(1.0).round().to_string(),
                     );
                     node.properties.insert(
                         "height".into(),
-                        (if self.snap {
-                            (h / 8.0).round() * 8.0
-                        } else {
-                            h
-                        })
-                        .max(1.0)
-                        .round()
-                        .to_string(),
+                        snap_to_grid(h, self.snap).max(1.0).round().to_string(),
                     );
                     if node
                         .properties
@@ -2045,7 +2058,7 @@ impl Editor {
                         .is_some_and(|t| t == "CollisionShape2D")
                         && node.properties.get("shape").is_some_and(|s| s == "circle")
                     {
-                        let radius = ((w.abs().max(h.abs())) / 2.0).max(1.0).round();
+                        let radius = circle_radius(w, h).round();
                         node.properties.insert("radius".into(), radius.to_string());
                     }
                 } else {
@@ -2057,26 +2070,10 @@ impl Editor {
                         .or_else(|| prop_vec_y(node))
                         .unwrap_or(32) as f32
                         + delta.y;
-                    node.properties.insert(
-                        "x".into(),
-                        (if self.snap {
-                            (x / 8.0).round() * 8.0
-                        } else {
-                            x
-                        })
-                        .round()
-                        .to_string(),
-                    );
-                    node.properties.insert(
-                        "y".into(),
-                        (if self.snap {
-                            (y / 8.0).round() * 8.0
-                        } else {
-                            y
-                        })
-                        .round()
-                        .to_string(),
-                    );
+                    node.properties
+                        .insert("x".into(), snap_to_grid(x, self.snap).round().to_string());
+                    node.properties
+                        .insert("y".into(), snap_to_grid(y, self.snap).round().to_string());
                 }
             } else {
                 self.pan += ui.input(|input| input.pointer.delta());
@@ -2104,12 +2101,12 @@ impl Editor {
             );
         }
         if self.show_grid {
-            let step = 16.0 * self.zoom;
+            let step = grid_step(self.zoom) * self.zoom;
             let mut x = world.left();
             while x <= world.right() {
                 painter.line_segment(
                     [Pos2::new(x, world.top()), Pos2::new(x, world.bottom())],
-                    Stroke::new(1.0, Color32::from_gray(47)),
+                    Stroke::new(1.0_f32, Color32::from_gray(47)),
                 );
                 x += step;
             }
@@ -2117,7 +2114,7 @@ impl Editor {
             while y <= world.bottom() {
                 painter.line_segment(
                     [Pos2::new(world.left(), y), Pos2::new(world.right(), y)],
-                    Stroke::new(1.0, Color32::from_gray(47)),
+                    Stroke::new(1.0_f32, Color32::from_gray(47)),
                 );
                 y += step;
             }
@@ -2125,7 +2122,7 @@ impl Editor {
         painter.rect_stroke(
             world,
             0.0,
-            Stroke::new(2.0, Color32::from_rgb(110, 194, 255)),
+            Stroke::new(2.0_f32, Color32::from_rgb(110, 194, 255)),
             egui::StrokeKind::Middle,
         );
         painter.text(
@@ -2164,9 +2161,9 @@ impl Editor {
             };
             let stroke = Stroke::new(
                 if self.selected == Some(index) {
-                    2.5
+                    2.5_f32
                 } else {
-                    1.0
+                    1.0_f32
                 },
                 color,
             );
@@ -2413,5 +2410,27 @@ mod tests {
             polygon_points("0,0; 12, 0; 8,16"),
             vec![(0, 0), (12, 0), (8, 16)]
         );
+    }
+
+    #[test]
+    fn viewport_snap_policy_is_compiled_from_klc() {
+        assert_eq!(snap_to_grid(3.9, true), 0.0);
+        assert_eq!(snap_to_grid(4.1, true), 8.0);
+        assert_eq!(snap_to_grid(-4.1, true), -8.0);
+        assert_eq!(snap_to_grid(3.9, false), 3.9);
+    }
+
+    #[test]
+    fn collision_radius_policy_is_compiled_from_klc() {
+        assert_eq!(circle_radius(48.0, 20.0), 24.0);
+        assert_eq!(circle_radius(-7.0, 10.0), 5.0);
+        assert_eq!(circle_radius(0.0, 0.0), 1.0);
+    }
+
+    #[test]
+    fn viewport_grid_density_policy_is_compiled_from_klc() {
+        assert_eq!(grid_step(0.5), 32.0);
+        assert_eq!(grid_step(1.0), 16.0);
+        assert_eq!(grid_step(2.5), 8.0);
     }
 }

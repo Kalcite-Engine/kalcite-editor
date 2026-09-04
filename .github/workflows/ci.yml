@@ -2,7 +2,12 @@ name: Editor CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+
+concurrency:
+  group: editor-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -10,6 +15,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -18,4 +24,4 @@ jobs:
           components: rustfmt, clippy
       - run: cargo fmt --all -- --check
       - run: cargo test
-      - run: cargo clippy --all-targets
+      - run: cargo clippy --all-targets -- -D warnings
