@@ -1615,16 +1615,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "kalcite-backend-rust"
+version = "0.14.0"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=ebac908abbec9a1a7b0faa250c4f1ee3a294defd#ebac908abbec9a1a7b0faa250c4f1ee3a294defd"
+dependencies = [
+ "kalcite-hir",
+ "kalcite-mir",
+]
+
+[[package]]
 name = "kalcite-editor"
 version = "0.14.0"
 dependencies = [
  "eframe",
  "image",
  "kalcite-assets",
+ "kalcite-backend-rust",
+ "kalcite-hir",
  "kalcite-linter",
+ "kalcite-mir",
  "kalcite-profiler",
  "kalcite-project",
  "kalcite-scene",
+ "kalcite-syntax 0.2.0 (git+https://github.com/Kalcite-Engine/kalcite.git?rev=ebac908abbec9a1a7b0faa250c4f1ee3a294defd)",
+]
+
+[[package]]
+name = "kalcite-hir"
+version = "0.14.0"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=ebac908abbec9a1a7b0faa250c4f1ee3a294defd#ebac908abbec9a1a7b0faa250c4f1ee3a294defd"
+dependencies = [
+ "kalcite-syntax 0.2.0 (git+https://github.com/Kalcite-Engine/kalcite.git?rev=ebac908abbec9a1a7b0faa250c4f1ee3a294defd)",
 ]
 
 [[package]]
@@ -1632,7 +1653,16 @@ name = "kalcite-linter"
 version = "0.2.0"
 source = "git+https://github.com/Kalcite-Engine/kalcite.git?tag=v0.14.0#7d4e63cbb76798841425145569904cb6c5bb88ac"
 dependencies = [
- "kalcite-syntax",
+ "kalcite-syntax 0.2.0 (git+https://github.com/Kalcite-Engine/kalcite.git?tag=v0.14.0)",
+]
+
+[[package]]
+name = "kalcite-mir"
+version = "0.14.0"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=ebac908abbec9a1a7b0faa250c4f1ee3a294defd#ebac908abbec9a1a7b0faa250c4f1ee3a294defd"
+dependencies = [
+ "kalcite-hir",
+ "kalcite-syntax 0.2.0 (git+https://github.com/Kalcite-Engine/kalcite.git?rev=ebac908abbec9a1a7b0faa250c4f1ee3a294defd)",
 ]
 
 [[package]]
@@ -1647,7 +1677,7 @@ source = "git+https://github.com/Kalcite-Engine/kalcite.git?tag=v0.14.0#7d4e63cb
 dependencies = [
  "kalcite-linter",
  "kalcite-scene",
- "kalcite-syntax",
+ "kalcite-syntax 0.2.0 (git+https://github.com/Kalcite-Engine/kalcite.git?tag=v0.14.0)",
 ]
 
 [[package]]
@@ -1659,6 +1689,11 @@ source = "git+https://github.com/Kalcite-Engine/kalcite.git?tag=v0.14.0#7d4e63cb
 name = "kalcite-syntax"
 version = "0.2.0"
 source = "git+https://github.com/Kalcite-Engine/kalcite.git?tag=v0.14.0#7d4e63cbb76798841425145569904cb6c5bb88ac"
+
+[[package]]
+name = "kalcite-syntax"
+version = "0.2.0"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=ebac908abbec9a1a7b0faa250c4f1ee3a294defd#ebac908abbec9a1a7b0faa250c4f1ee3a294defd"
 
 [[package]]
 name = "khronos-egl"

@@ -7,6 +7,12 @@ inspection, resource browsing, diagnostics presentation, and editor-specific
 project workflows. The compiler, scene format, project model, and runtime stay
 in the Kalcite core repository.
 
+`src/editor_core.klc` is compiled by `build.rs` using the Kalcite compiler
+pipeline. Keep this module deterministic and bounded: it contains editor
+policy, while the Rust host retains native windowing, filesystem access, and
+eframe-specific rendering. Update the KLC regression tests in `src/main.rs`
+when changing a generated policy function.
+
 ## Running the editor
 
 ```bash
@@ -30,11 +36,13 @@ include a regression test in `src/main.rs`.
 
 ## Updating the core dependency
 
-1. Start from a tagged Kalcite core release.
-2. Update every `kalcite-*` Git dependency in `Cargo.toml` to the same tag.
-3. Regenerate `Cargo.lock` with `cargo update`.
-4. Verify that a representative project opens and saves correctly.
-5. Run the local check set and CI.
+1. Start from a tagged Kalcite core release for runtime dependencies.
+2. Update runtime `kalcite-*` Git dependencies in `Cargo.toml` to that tag.
+3. Update all KLC build dependencies to one compiler revision that exports
+   `emit_library`; move them back to the release tag when it contains that API.
+4. Regenerate `Cargo.lock` with `cargo update`.
+5. Verify that a representative project opens and saves correctly.
+6. Run the local check set and CI.
 
 ## Release checklist
 

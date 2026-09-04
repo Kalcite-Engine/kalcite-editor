@@ -1,0 +1,10 @@
+// Editor viewport policy compiled from Kalcite itself. Values use milli-pixels
+// so the Rust UI adapter retains fractional drag precision without owning the
+// snap decision.
+public i32 editor_snap_milli(i32 value, bool enabled) {
+    if !enabled { return value; }
+    i32 step = 8000;
+    i32 half = 4000;
+    if value >= 0 { return ((value + half) / step) * step; }
+    return ((value - half) / step) * step;
+}
