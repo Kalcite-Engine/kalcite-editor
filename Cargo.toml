@@ -12,10 +12,10 @@ name = "kalcite-editor"
 path = "src/main.rs"
 
 [build-dependencies]
-kalcite-syntax = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "ebac908abbec9a1a7b0faa250c4f1ee3a294defd" }
-kalcite-hir = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "ebac908abbec9a1a7b0faa250c4f1ee3a294defd" }
-kalcite-mir = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "ebac908abbec9a1a7b0faa250c4f1ee3a294defd" }
-kalcite-backend-rust = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "ebac908abbec9a1a7b0faa250c4f1ee3a294defd" }
+kalcite-syntax = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "05c16f19de2949e1180551dc0e020e0579cdc232" }
+kalcite-hir = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "05c16f19de2949e1180551dc0e020e0579cdc232" }
+kalcite-mir = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "05c16f19de2949e1180551dc0e020e0579cdc232" }
+kalcite-backend-rust = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "05c16f19de2949e1180551dc0e020e0579cdc232" }
 
 [dependencies]
 eframe = "0.31"
