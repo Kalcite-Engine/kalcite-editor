@@ -37,6 +37,10 @@ fn circle_radius(value_width: f32, value_height: f32) -> f32 {
         / 1000.0
 }
 
+fn grid_step(zoom: f32) -> f32 {
+    klc_editor::editor_grid_step_milli((zoom * 1000.0).round() as i32) as f32 / 1000.0
+}
+
 fn main() -> eframe::Result<()> {
     let project = std::env::args()
         .nth(1)
@@ -2097,7 +2101,7 @@ impl Editor {
             );
         }
         if self.show_grid {
-            let step = 16.0 * self.zoom;
+            let step = grid_step(self.zoom) * self.zoom;
             let mut x = world.left();
             while x <= world.right() {
                 painter.line_segment(
@@ -2421,5 +2425,12 @@ mod tests {
         assert_eq!(circle_radius(48.0, 20.0), 24.0);
         assert_eq!(circle_radius(-7.0, 10.0), 5.0);
         assert_eq!(circle_radius(0.0, 0.0), 1.0);
+    }
+
+    #[test]
+    fn viewport_grid_density_policy_is_compiled_from_klc() {
+        assert_eq!(grid_step(0.5), 32.0);
+        assert_eq!(grid_step(1.0), 16.0);
+        assert_eq!(grid_step(2.5), 8.0);
     }
 }

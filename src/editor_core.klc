@@ -22,3 +22,12 @@ public i32 editor_circle_radius_milli(i32 width, i32 height) {
     if radius < 1000 { return 1000; }
     return radius;
 }
+
+// Grid density is editor policy too: zoomed-out scenes remain readable while
+// zoomed-in scenes retain useful placement precision. The returned value is a
+// logical-world spacing in milli-pixels.
+public i32 editor_grid_step_milli(i32 zoom_milli) {
+    if zoom_milli < 750 { return 32000; }
+    if zoom_milli > 2000 { return 8000; }
+    return 16000;
+}
