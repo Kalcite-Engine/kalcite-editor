@@ -27,8 +27,7 @@
             nativeBuildInputs = [ pkgs.makeWrapper pkgs.pkg-config ];
             buildInputs = runtimeLibraries;
             postInstall = ''
-              install -Dm444 resources/kalcite-editor.desktop \
-                $out/share/applications/kalcite-editor.desktop
+              $out/bin/kalcite-editor-info linux $out
             '';
             postFixup = ''
               wrapProgram $out/bin/kalcite-editor \

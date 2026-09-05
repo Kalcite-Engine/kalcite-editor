@@ -6,5 +6,5 @@ Exec=kalcite-editor %F
 TryExec=kalcite-editor
 Terminal=false
 Categories=Development;IDE;
-MimeType=application/x-kalcite-project;
+MimeType=application/x-kalcite-project;application/x-kalcite-scene;application/x-kalcite-script;
 StartupNotify=true

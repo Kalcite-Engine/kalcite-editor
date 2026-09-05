@@ -31,6 +31,15 @@ cargo test
 cargo clippy --all-targets
 ```
 
+## Distribution metadata
+
+`kalcite-editor-info` is the source of truth for platform file associations.
+`kalcite-editor-info linux PREFIX` writes the freedesktop desktop entry and
+shared-MIME XML under `PREFIX/share`; `kalcite-editor-info macos BINARY APP`
+creates an `.app` bundle with its `Info.plist`. Use `make bundle-macos` for the
+release bundle. Keep its tests updated whenever a project, scene, or script
+file type is added.
+
 Changes to scene parsing, serialization, tilemaps, or inspector validation must
 include a regression test in `src/main.rs`.
 
