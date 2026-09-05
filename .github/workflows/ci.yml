@@ -25,3 +25,12 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo test
       - run: cargo clippy --all-targets -- -D warnings
+      - run: make install DESTDIR="$PWD/.stage" PREFIX=/usr
+      - run: test -x .stage/usr/bin/kalcite-editor && test -f .stage/usr/share/applications/kalcite-editor.desktop
+  nix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v20
+      - run: nix build .#kalcite-editor
