@@ -26,7 +26,7 @@ jobs:
       - run: cargo test
       - run: cargo clippy --all-targets -- -D warnings
       - run: make install DESTDIR="$PWD/.stage" PREFIX=/usr
-      - run: test -x .stage/usr/bin/kalcite-editor && test -f .stage/usr/share/applications/kalcite-editor.desktop
+      - run: test -x .stage/usr/bin/kalcite-editor && test -x .stage/usr/bin/kalcite-editor-info && test -f .stage/usr/share/applications/kalcite-editor.desktop && test -f .stage/usr/share/mime/packages/kalcite-editor.xml
   nix:
     runs-on: ubuntu-latest
     timeout-minutes: 20

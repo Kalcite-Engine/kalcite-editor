@@ -60,10 +60,26 @@ Debian or Ubuntu this is:
 sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libssl-dev
 ```
 
-Then `make install` installs both `kalcite-editor` and a
-`kalcite-editor.desktop` launcher (use `PREFIX=$HOME/.local` for a per-user
-installation). A graphical Linux session must expose `WAYLAND_DISPLAY` or
-`DISPLAY`; the editor cannot open a native window from a headless shell.
+Then `make install` uses the versioned `kalcite-editor-info` builder to install
+the binary, a `kalcite-editor.desktop` launcher, and MIME associations for
+`kalcite.toml`, `.kscn`, and `.klc` files (use `PREFIX=$HOME/.local` for a
+per-user installation). A graphical Linux session must expose
+`WAYLAND_DISPLAY` or `DISPLAY`; the editor cannot open a native window from a
+headless shell.
+
+### macOS
+
+Build an application bundle with its file associations using:
+
+```bash
+make bundle-macos
+open "dist/Kalcite Editor.app"
+```
+
+The generated `Info.plist` registers the `org.kalcite.project`,
+`org.kalcite.scene` (`.kscn`), and `org.kalcite.script` (`.klc`) document
+types. Copy the resulting app to `/Applications` to make LaunchServices expose
+those associations system-wide.
 
 When no path is supplied, the editor opens the current directory. A valid
 project contains `kalcite.toml`; use the main Kalcite CLI to create one:

@@ -11,6 +11,10 @@ repository = "https://github.com/Kalcite-Engine/kalcite-editor"
 name = "kalcite-editor"
 path = "src/main.rs"
 
+[[bin]]
+name = "kalcite-editor-info"
+path = "src/info_builder.rs"
+
 [build-dependencies]
 kalcite-syntax = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "4396353aae921851dbe81544361ae75ae5ed41cf" }
 kalcite-hir = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "4396353aae921851dbe81544361ae75ae5ed41cf" }
