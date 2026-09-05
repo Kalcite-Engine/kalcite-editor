@@ -20,8 +20,8 @@ kalcite-backend-rust = { git = "https://github.com/Kalcite-Engine/kalcite.git", 
 [dependencies]
 eframe = "0.31"
 image = { version = "0.25", default-features = false, features = ["png"] }
-kalcite-project = { git = "https://github.com/Kalcite-Engine/kalcite.git", tag = "v0.14.0" }
-kalcite-scene = { git = "https://github.com/Kalcite-Engine/kalcite.git", tag = "v0.14.0" }
-kalcite-linter = { git = "https://github.com/Kalcite-Engine/kalcite.git", tag = "v0.14.0" }
-kalcite-assets = { git = "https://github.com/Kalcite-Engine/kalcite.git", tag = "v0.14.0" }
-kalcite-profiler = { git = "https://github.com/Kalcite-Engine/kalcite.git", tag = "v0.14.0" }
+kalcite-project = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "4396353aae921851dbe81544361ae75ae5ed41cf" }
+kalcite-scene = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "4396353aae921851dbe81544361ae75ae5ed41cf" }
+kalcite-linter = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "4396353aae921851dbe81544361ae75ae5ed41cf" }
+kalcite-assets = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "4396353aae921851dbe81544361ae75ae5ed41cf" }
+kalcite-profiler = { git = "https://github.com/Kalcite-Engine/kalcite.git", rev = "4396353aae921851dbe81544361ae75ae5ed41cf" }

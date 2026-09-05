@@ -41,6 +41,30 @@ For development:
 cargo run -- /path/to/kalcite-project
 ```
 
+### Linux
+
+The editor supports both Wayland and X11. The Nix package includes its runtime
+libraries, a desktop launcher, and works on x86_64 and ARM64 Linux:
+
+```bash
+nix run github:Kalcite-Engine/kalcite-editor -- /path/to/kalcite-project
+```
+
+For a persistent Nix installation, use `nix profile install
+github:Kalcite-Engine/kalcite-editor` and launch `kalcite-editor` from a shell
+or the desktop application menu. For a distribution-managed Rust build, install
+the X11/Wayland development libraries required by eframe before compiling. On
+Debian or Ubuntu this is:
+
+```bash
+sudo apt-get install libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libssl-dev
+```
+
+Then `make install` installs both `kalcite-editor` and a
+`kalcite-editor.desktop` launcher (use `PREFIX=$HOME/.local` for a per-user
+installation). A graphical Linux session must expose `WAYLAND_DISPLAY` or
+`DISPLAY`; the editor cannot open a native window from a headless shell.
+
 When no path is supplied, the editor opens the current directory. A valid
 project contains `kalcite.toml`; use the main Kalcite CLI to create one:
 

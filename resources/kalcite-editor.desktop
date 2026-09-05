@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Kalcite Editor
+Comment=Native graphical editor for Kalcite projects
+Exec=kalcite-editor %F
+TryExec=kalcite-editor
+Terminal=false
+Categories=Development;IDE;
+MimeType=application/x-kalcite-project;
+StartupNotify=true
