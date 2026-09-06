@@ -45,3 +45,30 @@ public u32 editor_tile_color_rgb(u32 tile) {
     if index == 6 { return 5948096; }
     return 11184810;
 }
+
+// Returns -1 when a candidate is not in the requested direction; otherwise
+// returns a deterministic primary-axis weighted distance for gamepad focus.
+// direction: 0=up, 1=down, 2=left, 3=right.
+public i32 editor_navigation_score(i32 from_x, i32 from_y, i32 candidate_x, i32 candidate_y, i32 direction) {
+    if direction == 0 {
+        if candidate_y >= from_y { return -1; }
+        i32 secondary = from_x - candidate_x;
+        if secondary < 0 { secondary = 0 - secondary; }
+        return (from_y - candidate_y) * 1000 + secondary;
+    } else if direction == 1 {
+        if candidate_y <= from_y { return -1; }
+        i32 secondary = from_x - candidate_x;
+        if secondary < 0 { secondary = 0 - secondary; }
+        return (candidate_y - from_y) * 1000 + secondary;
+    } else if direction == 2 {
+        if candidate_x >= from_x { return -1; }
+        i32 secondary = from_y - candidate_y;
+        if secondary < 0 { secondary = 0 - secondary; }
+        return (from_x - candidate_x) * 1000 + secondary;
+    } else {
+        if candidate_x <= from_x { return -1; }
+        i32 secondary = from_y - candidate_y;
+        if secondary < 0 { secondary = 0 - secondary; }
+        return (candidate_x - from_x) * 1000 + secondary;
+    }
+}
