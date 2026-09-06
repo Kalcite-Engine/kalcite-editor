@@ -31,3 +31,17 @@ public i32 editor_grid_step_milli(i32 zoom_milli) {
     if zoom_milli > 2000 { return 8000; }
     return 16000;
 }
+
+// Tile colours are editor presentation policy. RGB is packed as 0xRRGGBB so
+// the Rust adapter merely converts it to the native UI colour type.
+public u32 editor_tile_color_rgb(u32 tile) {
+    u32 index = tile % 8;
+    if index == 0 { return 3225414; }
+    if index == 1 { return 5544673; }
+    if index == 2 { return 6603389; }
+    if index == 3 { return 15708493; }
+    if index == 4 { return 13790575; }
+    if index == 5 { return 10450911; }
+    if index == 6 { return 5948096; }
+    return 11184810;
+}
