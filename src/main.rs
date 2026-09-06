@@ -42,7 +42,7 @@ fn grid_step(zoom: f32) -> f32 {
 }
 
 fn main() -> eframe::Result<()> {
-    let project = std::env::args()
+    let document = std::env::args()
         .nth(1)
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("."));
@@ -52,8 +52,22 @@ fn main() -> eframe::Result<()> {
             viewport: egui::ViewportBuilder::default().with_inner_size([1440.0, 900.0]),
             ..Default::default()
         },
-        Box::new(move |_| Ok(Box::new(Editor::open(project)))),
+        Box::new(move |_| Ok(Box::new(Editor::open(document)))),
     )
+}
+
+/// Resolve a project directory from either a project root or a document opened
+/// by a platform file association.
+fn project_root_for_document(document: &Path) -> PathBuf {
+    let start = if document.is_dir() {
+        document
+    } else {
+        document.parent().unwrap_or(document)
+    };
+    start
+        .ancestors()
+        .find(|directory| directory.join("kalcite.toml").is_file())
+        .map_or_else(|| start.to_path_buf(), Path::to_path_buf)
 }
 
 struct Editor {
@@ -130,8 +144,9 @@ fn editor_tab(value: &str) -> Option<EditorTab> {
 }
 
 impl Editor {
-    fn open(root: PathBuf) -> Self {
-        let root = root.canonicalize().unwrap_or(root);
+    fn open(document: PathBuf) -> Self {
+        let document = document.canonicalize().unwrap_or(document);
+        let root = project_root_for_document(&document);
         let manifest = fs::read_to_string(root.join("kalcite.toml"))
             .map(|s| ProjectManifest::parse(&s))
             .unwrap_or_default();
@@ -179,6 +194,21 @@ impl Editor {
             resource_rename: String::new(),
         };
         editor.restore_state();
+        if document.is_file() && document.starts_with(&editor.project_root) {
+            match document
+                .extension()
+                .and_then(|extension| extension.to_str())
+            {
+                Some("kscn") => {
+                    let (scene, diagnostics) = load_scene(&document);
+                    editor.active_scene = document;
+                    editor.scene = scene;
+                    editor.diagnostics.extend(diagnostics);
+                }
+                Some("klc") => editor.open_script(document),
+                _ => {}
+            }
+        }
         editor
     }
 
@@ -2333,6 +2363,21 @@ fn encode_scene(scene: &Scene) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn file_association_document_resolves_its_project_root() {
+        let root = std::env::temp_dir().join(format!(
+            "kalcite-editor-open-document-{}",
+            std::process::id()
+        ));
+        let script = root.join("scripts/player.klc");
+        fs::create_dir_all(script.parent().unwrap()).unwrap();
+        fs::write(root.join("kalcite.toml"), "[project]\nname = \"Demo\"\n").unwrap();
+        fs::write(&script, "class Player extends Node {}\n").unwrap();
+
+        assert_eq!(project_root_for_document(&script), root);
+        fs::remove_dir_all(root).unwrap();
+    }
 
     #[test]
     fn tilemap_csv_round_trip() {
