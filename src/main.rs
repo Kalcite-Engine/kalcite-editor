@@ -876,9 +876,9 @@ impl Editor {
             }
         }
         let tiles = tilemaps.saturating_mul(64);
-        let update = 220 + collisions * 35 + fluids * 8;
-        let render = 300 + sprites * 55 + tiles * 2 + raytracers * 8000;
-        let physics = collisions * 60 + fluids * 25;
+        let update = klc_editor::editor_profile_update_us(collisions, fluids);
+        let render = klc_editor::editor_profile_render_us(sprites, tilemaps, raytracers);
+        let physics = klc_editor::editor_profile_physics_us(collisions, fluids);
         let frame = update + render + physics;
         let mut profiler = kalcite_profiler::Profiler::default();
         profiler.begin(static_ram);
@@ -2423,5 +2423,12 @@ mod tests {
         assert_eq!(klc_editor::editor_navigation_score(10, 10, 12, 4, 0), 6002);
         assert_eq!(klc_editor::editor_navigation_score(10, 10, 12, 14, 0), -1);
         assert_eq!(klc_editor::editor_navigation_score(10, 10, 4, 12, 2), 6002);
+    }
+
+    #[test]
+    fn profile_estimate_policy_is_compiled_from_klc() {
+        assert_eq!(klc_editor::editor_profile_update_us(2, 3), 314);
+        assert_eq!(klc_editor::editor_profile_render_us(4, 1, 0), 648);
+        assert_eq!(klc_editor::editor_profile_physics_us(2, 3), 195);
     }
 }

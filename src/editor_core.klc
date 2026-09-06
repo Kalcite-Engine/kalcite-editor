@@ -72,3 +72,18 @@ public i32 editor_navigation_score(i32 from_x, i32 from_y, i32 candidate_x, i32 
         return (candidate_x - from_x) * 1000 + secondary;
     }
 }
+
+// Static editor profiling is deterministic policy. Rust inventories scene
+// nodes and assets, while KLC owns the estimated work model shown to authors.
+public u32 editor_profile_update_us(u32 collisions, u32 fluids) {
+    return 220 + collisions * 35 + fluids * 8;
+}
+
+public u32 editor_profile_render_us(u32 sprites, u32 tilemaps, u32 raytracers) {
+    u32 tiles = tilemaps * 64;
+    return 300 + sprites * 55 + tiles * 2 + raytracers * 8000;
+}
+
+public u32 editor_profile_physics_us(u32 collisions, u32 fluids) {
+    return collisions * 60 + fluids * 25;
+}
