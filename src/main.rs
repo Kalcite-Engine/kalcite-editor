@@ -2254,17 +2254,8 @@ fn encode_csv(grid: &[Vec<u16>]) -> String {
         + "\n"
 }
 fn tile_color(tile: u16) -> Color32 {
-    const COLORS: [Color32; 8] = [
-        Color32::from_rgb(49, 55, 70),
-        Color32::from_rgb(84, 154, 225),
-        Color32::from_rgb(100, 194, 125),
-        Color32::from_rgb(239, 177, 77),
-        Color32::from_rgb(210, 109, 111),
-        Color32::from_rgb(159, 119, 223),
-        Color32::from_rgb(90, 194, 192),
-        Color32::from_rgb(170, 170, 170),
-    ];
-    COLORS[tile as usize % COLORS.len()]
+    let rgb = klc_editor::editor_tile_color_rgb(tile as u32);
+    Color32::from_rgb((rgb >> 16) as u8, (rgb >> 8) as u8, rgb as u8)
 }
 fn prop_vec_x(node: &Node) -> Option<i16> {
     node.properties
@@ -2432,5 +2423,12 @@ mod tests {
         assert_eq!(grid_step(0.5), 32.0);
         assert_eq!(grid_step(1.0), 16.0);
         assert_eq!(grid_step(2.5), 8.0);
+    }
+
+    #[test]
+    fn tile_palette_policy_is_compiled_from_klc() {
+        assert_eq!(tile_color(0), Color32::from_rgb(49, 55, 70));
+        assert_eq!(tile_color(7), Color32::from_rgb(170, 170, 170));
+        assert_eq!(tile_color(8), tile_color(0));
     }
 }
