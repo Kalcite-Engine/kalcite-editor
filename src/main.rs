@@ -42,7 +42,7 @@ fn grid_step(zoom: f32) -> f32 {
 }
 
 fn main() -> eframe::Result<()> {
-    let project = std::env::args()
+    let document = std::env::args()
         .nth(1)
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("."));
@@ -52,8 +52,22 @@ fn main() -> eframe::Result<()> {
             viewport: egui::ViewportBuilder::default().with_inner_size([1440.0, 900.0]),
             ..Default::default()
         },
-        Box::new(move |_| Ok(Box::new(Editor::open(project)))),
+        Box::new(move |_| Ok(Box::new(Editor::open(document)))),
     )
+}
+
+/// Resolve a project directory from either a project root or a document opened
+/// by a platform file association.
+fn project_root_for_document(document: &Path) -> PathBuf {
+    let start = if document.is_dir() {
+        document
+    } else {
+        document.parent().unwrap_or(document)
+    };
+    start
+        .ancestors()
+        .find(|directory| directory.join("kalcite.toml").is_file())
+        .map_or_else(|| start.to_path_buf(), Path::to_path_buf)
 }
 
 struct Editor {
@@ -130,8 +144,9 @@ fn editor_tab(value: &str) -> Option<EditorTab> {
 }
 
 impl Editor {
-    fn open(root: PathBuf) -> Self {
-        let root = root.canonicalize().unwrap_or(root);
+    fn open(document: PathBuf) -> Self {
+        let document = document.canonicalize().unwrap_or(document);
+        let root = project_root_for_document(&document);
         let manifest = fs::read_to_string(root.join("kalcite.toml"))
             .map(|s| ProjectManifest::parse(&s))
             .unwrap_or_default();
@@ -179,6 +194,21 @@ impl Editor {
             resource_rename: String::new(),
         };
         editor.restore_state();
+        if document.is_file() && document.starts_with(&editor.project_root) {
+            match document
+                .extension()
+                .and_then(|extension| extension.to_str())
+            {
+                Some("kscn") => {
+                    let (scene, diagnostics) = load_scene(&document);
+                    editor.active_scene = document;
+                    editor.scene = scene;
+                    editor.diagnostics.extend(diagnostics);
+                }
+                Some("klc") => editor.open_script(document),
+                _ => {}
+            }
+        }
         editor
     }
 
@@ -876,9 +906,9 @@ impl Editor {
             }
         }
         let tiles = tilemaps.saturating_mul(64);
-        let update = 220 + collisions * 35 + fluids * 8;
-        let render = 300 + sprites * 55 + tiles * 2 + raytracers * 8000;
-        let physics = collisions * 60 + fluids * 25;
+        let update = klc_editor::editor_profile_update_us(collisions, fluids);
+        let render = klc_editor::editor_profile_render_us(sprites, tilemaps, raytracers);
+        let physics = klc_editor::editor_profile_physics_us(collisions, fluids);
         let frame = update + render + physics;
         let mut profiler = kalcite_profiler::Profiler::default();
         profiler.begin(static_ram);
@@ -2335,6 +2365,21 @@ mod tests {
     use super::*;
 
     #[test]
+    fn file_association_document_resolves_its_project_root() {
+        let root = std::env::temp_dir().join(format!(
+            "kalcite-editor-open-document-{}",
+            std::process::id()
+        ));
+        let script = root.join("scripts/player.klc");
+        fs::create_dir_all(script.parent().unwrap()).unwrap();
+        fs::write(root.join("kalcite.toml"), "[project]\nname = \"Demo\"\n").unwrap();
+        fs::write(&script, "class Player extends Node {}\n").unwrap();
+
+        assert_eq!(project_root_for_document(&script), root);
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
     fn tilemap_csv_round_trip() {
         let source = "1,2,3\n4,5,6\n";
         assert_eq!(csv_grid(&encode_csv(&csv_grid(source))), csv_grid(source));
@@ -2423,5 +2468,12 @@ mod tests {
         assert_eq!(klc_editor::editor_navigation_score(10, 10, 12, 4, 0), 6002);
         assert_eq!(klc_editor::editor_navigation_score(10, 10, 12, 14, 0), -1);
         assert_eq!(klc_editor::editor_navigation_score(10, 10, 4, 12, 2), 6002);
+    }
+
+    #[test]
+    fn profile_estimate_policy_is_compiled_from_klc() {
+        assert_eq!(klc_editor::editor_profile_update_us(2, 3), 314);
+        assert_eq!(klc_editor::editor_profile_render_us(4, 1, 0), 648);
+        assert_eq!(klc_editor::editor_profile_physics_us(2, 3), 195);
     }
 }
