@@ -932,36 +932,22 @@ impl Editor {
             let y = prop_num(node, "y")
                 .or_else(|| prop_vec_y(node))
                 .unwrap_or(0);
-            for (key, candidate) in [
-                (
-                    "nav_up",
-                    controls
-                        .iter()
-                        .filter(|(_, _cx, cy)| *cy < y)
-                        .min_by_key(|(_, cx, cy)| (y - *cy) as i32 * 1000 + (x - *cx).abs() as i32),
-                ),
-                (
-                    "nav_down",
-                    controls
-                        .iter()
-                        .filter(|(_, _cx, cy)| *cy > y)
-                        .min_by_key(|(_, cx, cy)| (*cy - y) as i32 * 1000 + (x - *cx).abs() as i32),
-                ),
-                (
-                    "nav_left",
-                    controls
-                        .iter()
-                        .filter(|(_, cx, _cy)| *cx < x)
-                        .min_by_key(|(_, cx, cy)| (x - *cx) as i32 * 1000 + (y - *cy).abs() as i32),
-                ),
-                (
-                    "nav_right",
-                    controls
-                        .iter()
-                        .filter(|(_, cx, _cy)| *cx > x)
-                        .min_by_key(|(_, cx, cy)| (*cx - x) as i32 * 1000 + (y - *cy).abs() as i32),
-                ),
+            for (key, direction) in [
+                ("nav_up", 0),
+                ("nav_down", 1),
+                ("nav_left", 2),
+                ("nav_right", 3),
             ] {
+                let candidate = controls
+                    .iter()
+                    .filter_map(|candidate @ (_, cx, cy)| {
+                        let score = klc_editor::editor_navigation_score(
+                            x as i32, y as i32, *cx as i32, *cy as i32, direction,
+                        );
+                        (score >= 0).then_some((score, candidate))
+                    })
+                    .min_by_key(|(score, _)| *score)
+                    .map(|(_, candidate)| candidate);
                 if let Some((path, _, _)) = candidate {
                     node.properties.insert(key.into(), path.clone());
                 } else {
@@ -2430,5 +2416,12 @@ mod tests {
         assert_eq!(tile_color(0), Color32::from_rgb(49, 55, 70));
         assert_eq!(tile_color(7), Color32::from_rgb(170, 170, 170));
         assert_eq!(tile_color(8), tile_color(0));
+    }
+
+    #[test]
+    fn gamepad_navigation_policy_is_compiled_from_klc() {
+        assert_eq!(klc_editor::editor_navigation_score(10, 10, 12, 4, 0), 6002);
+        assert_eq!(klc_editor::editor_navigation_score(10, 10, 12, 14, 0), -1);
+        assert_eq!(klc_editor::editor_navigation_score(10, 10, 4, 12, 2), 6002);
     }
 }
