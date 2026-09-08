@@ -1618,7 +1618,7 @@ dependencies = [
 [[package]]
 name = "kalcite-assets"
 version = "0.14.0"
-source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=4396353aae921851dbe81544361ae75ae5ed41cf#4396353aae921851dbe81544361ae75ae5ed41cf"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=29803c0345637487b8a257f8f3bbb27680163465#29803c0345637487b8a257f8f3bbb27680163465"
 dependencies = [
  "png 0.17.16",
 ]
@@ -1626,7 +1626,7 @@ dependencies = [
 [[package]]
 name = "kalcite-backend-rust"
 version = "0.14.0"
-source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=4396353aae921851dbe81544361ae75ae5ed41cf#4396353aae921851dbe81544361ae75ae5ed41cf"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=29803c0345637487b8a257f8f3bbb27680163465#29803c0345637487b8a257f8f3bbb27680163465"
 dependencies = [
  "kalcite-hir",
  "kalcite-mir",
@@ -1654,7 +1654,7 @@ dependencies = [
 [[package]]
 name = "kalcite-hir"
 version = "0.14.0"
-source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=4396353aae921851dbe81544361ae75ae5ed41cf#4396353aae921851dbe81544361ae75ae5ed41cf"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=29803c0345637487b8a257f8f3bbb27680163465#29803c0345637487b8a257f8f3bbb27680163465"
 dependencies = [
  "kalcite-syntax",
 ]
@@ -1662,7 +1662,7 @@ dependencies = [
 [[package]]
 name = "kalcite-linter"
 version = "0.2.0"
-source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=4396353aae921851dbe81544361ae75ae5ed41cf#4396353aae921851dbe81544361ae75ae5ed41cf"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=29803c0345637487b8a257f8f3bbb27680163465#29803c0345637487b8a257f8f3bbb27680163465"
 dependencies = [
  "kalcite-syntax",
 ]
@@ -1670,7 +1670,7 @@ dependencies = [
 [[package]]
 name = "kalcite-mir"
 version = "0.14.0"
-source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=4396353aae921851dbe81544361ae75ae5ed41cf#4396353aae921851dbe81544361ae75ae5ed41cf"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=29803c0345637487b8a257f8f3bbb27680163465#29803c0345637487b8a257f8f3bbb27680163465"
 dependencies = [
  "kalcite-hir",
  "kalcite-syntax",
@@ -1679,12 +1679,12 @@ dependencies = [
 [[package]]
 name = "kalcite-profiler"
 version = "0.14.0"
-source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=4396353aae921851dbe81544361ae75ae5ed41cf#4396353aae921851dbe81544361ae75ae5ed41cf"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=29803c0345637487b8a257f8f3bbb27680163465#29803c0345637487b8a257f8f3bbb27680163465"
 
 [[package]]
 name = "kalcite-project"
 version = "0.14.0"
-source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=4396353aae921851dbe81544361ae75ae5ed41cf#4396353aae921851dbe81544361ae75ae5ed41cf"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=29803c0345637487b8a257f8f3bbb27680163465#29803c0345637487b8a257f8f3bbb27680163465"
 dependencies = [
  "kalcite-linter",
  "kalcite-scene",
@@ -1694,12 +1694,12 @@ dependencies = [
 [[package]]
 name = "kalcite-scene"
 version = "0.14.0"
-source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=4396353aae921851dbe81544361ae75ae5ed41cf#4396353aae921851dbe81544361ae75ae5ed41cf"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=29803c0345637487b8a257f8f3bbb27680163465#29803c0345637487b8a257f8f3bbb27680163465"
 
 [[package]]
 name = "kalcite-syntax"
 version = "0.2.0"
-source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=4396353aae921851dbe81544361ae75ae5ed41cf#4396353aae921851dbe81544361ae75ae5ed41cf"
+source = "git+https://github.com/Kalcite-Engine/kalcite.git?rev=29803c0345637487b8a257f8f3bbb27680163465#29803c0345637487b8a257f8f3bbb27680163465"
 
 [[package]]
 name = "khronos-egl"
