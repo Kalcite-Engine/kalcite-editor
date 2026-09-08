@@ -41,6 +41,14 @@ fn grid_step(zoom: f32) -> f32 {
     klc_editor::editor_grid_step_milli((zoom * 1000.0).round() as i32) as f32 / 1000.0
 }
 
+fn budget_color(level: u32) -> Color32 {
+    match level {
+        0 => Color32::LIGHT_GREEN,
+        1 => Color32::from_rgb(255, 166, 77),
+        _ => Color32::from_rgb(255, 100, 100),
+    }
+}
+
 fn main() -> eframe::Result<()> {
     let document = std::env::args()
         .nth(1)
@@ -1814,13 +1822,12 @@ impl Editor {
                         && let Ok(sprite) = kalcite_assets::png(&file)
                     {
                         let bytes = sprite.rle.len();
-                        let level = if self.target_numworks && bytes > 24_000 {
-                            Color32::from_rgb(255, 130, 90)
-                        } else {
-                            Color32::LIGHT_GREEN
-                        };
+                        let level = klc_editor::editor_resource_budget_level(
+                            bytes.min(u32::MAX as usize) as u32,
+                            self.target_numworks,
+                        );
                         ui.colored_label(
-                            level,
+                            budget_color(level),
                             format!("{}×{} · ~{} octets RGB565", sprite.w, sprite.h, bytes),
                         );
                     }
@@ -1972,14 +1979,10 @@ impl Editor {
                 ] {
                     ui.label(name);
                     let limit = if name == "Frame" { 16_667 } else { 20_000 };
-                    let color = if value < limit * 3 / 5 {
-                        Color32::LIGHT_GREEN
-                    } else if value < limit {
-                        Color32::from_rgb(255, 166, 77)
-                    } else {
-                        Color32::from_rgb(255, 100, 100)
-                    };
-                    ui.colored_label(color, value.to_string());
+                    ui.colored_label(
+                        budget_color(klc_editor::editor_budget_level(value, limit)),
+                        value.to_string(),
+                    );
                     ui.end_row();
                 }
             });
@@ -2475,5 +2478,14 @@ mod tests {
         assert_eq!(klc_editor::editor_profile_update_us(2, 3), 314);
         assert_eq!(klc_editor::editor_profile_render_us(4, 1, 0), 648);
         assert_eq!(klc_editor::editor_profile_physics_us(2, 3), 195);
+    }
+
+    #[test]
+    fn budget_levels_are_compiled_from_klc() {
+        assert_eq!(klc_editor::editor_budget_level(9_999, 20_000), 0);
+        assert_eq!(klc_editor::editor_budget_level(12_000, 20_000), 1);
+        assert_eq!(klc_editor::editor_budget_level(20_000, 20_000), 2);
+        assert_eq!(klc_editor::editor_resource_budget_level(24_001, true), 2);
+        assert_eq!(klc_editor::editor_resource_budget_level(24_001, false), 0);
     }
 }
