@@ -11,6 +11,7 @@ versioned Kalcite core crates.
 - 320×240 2D viewport with grid, zoom, and snapping;
 - script, signals, resources, profiler, and tilemap tabs;
 - undo/redo, immediate validation, and diagnostics console.
+- Kally dependency health in the resources tab, read from its stable JSON status report.
 
 ## KLC execution in the editor
 
