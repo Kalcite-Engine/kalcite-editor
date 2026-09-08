@@ -6,6 +6,8 @@ use std::{
     fs,
     path::{Path, PathBuf},
     process::Command,
+    sync::mpsc::{self, Receiver, TryRecvError},
+    thread,
 };
 
 use eframe::egui::{self, Align2, Color32, FontId, Pos2, Rect, Sense, Stroke, Vec2};
@@ -13,6 +15,7 @@ use kalcite_project::{
     BUILTIN_NODES, NodeCategory, NodePropertyKind, ProjectManifest, builtin_node, builtin_node_is_a,
 };
 use kalcite_scene::{Connection, Node, Scene};
+use serde::Deserialize;
 
 #[allow(
     dead_code,
@@ -47,6 +50,21 @@ fn budget_color(level: u32) -> Color32 {
         1 => Color32::from_rgb(255, 166, 77),
         _ => Color32::from_rgb(255, 100, 100),
     }
+}
+
+fn parse_kally_status(output: std::process::Output) -> Result<KallyStatusReport, String> {
+    serde_json::from_slice(&output.stdout).map_err(|error| {
+        if output.status.success() {
+            format!("Réponse Kally invalide : {error}")
+        } else {
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_owned();
+            if stderr.is_empty() {
+                format!("Kally a échoué : {error}")
+            } else {
+                stderr
+            }
+        }
+    })
 }
 
 fn main() -> eframe::Result<()> {
@@ -117,6 +135,22 @@ struct Editor {
     preview_size: [usize; 2],
     selected_resource: Option<PathBuf>,
     resource_rename: String,
+    kally_status: Option<KallyStatusReport>,
+    kally_status_error: Option<String>,
+    kally_status_receiver: Option<Receiver<Result<KallyStatusReport, String>>>,
+    kally_status_loading: bool,
+}
+
+#[derive(Debug, Deserialize)]
+struct KallyStatusReport {
+    healthy: bool,
+    packages: Vec<KallyPackageStatus>,
+}
+
+#[derive(Debug, Deserialize)]
+struct KallyPackageStatus {
+    name: String,
+    status: String,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -200,6 +234,10 @@ impl Editor {
             preview_size: [0, 0],
             selected_resource: None,
             resource_rename: String::new(),
+            kally_status: None,
+            kally_status_error: None,
+            kally_status_receiver: None,
+            kally_status_loading: false,
         };
         editor.restore_state();
         if document.is_file() && document.starts_with(&editor.project_root) {
@@ -380,6 +418,53 @@ impl Editor {
             Err(e) => self
                 .diagnostics
                 .push(format!("Impossible de lancer Kalcite CLI : {e}")),
+        }
+    }
+
+    fn refresh_kally_status(&mut self) {
+        if self.kally_status_loading {
+            return;
+        }
+        let root = self.project_root.clone();
+        let (sender, receiver) = mpsc::channel();
+        thread::spawn(move || {
+            let result = Command::new("kally")
+                .current_dir(root)
+                .args(["status", "--json"])
+                .output()
+                .map_err(|error| {
+                    format!(
+                        "Kally indisponible : {error}. Installez-le avec Kallyup ou ajoutez-le au PATH."
+                    )
+                })
+                .and_then(parse_kally_status);
+            let _ = sender.send(result);
+        });
+        self.kally_status_receiver = Some(receiver);
+        self.kally_status_loading = true;
+        self.kally_status_error = None;
+    }
+
+    fn poll_kally_status(&mut self) {
+        let Some(receiver) = &self.kally_status_receiver else {
+            return;
+        };
+        let result = match receiver.try_recv() {
+            Ok(result) => result,
+            Err(TryRecvError::Empty) => return,
+            Err(TryRecvError::Disconnected) => Err("La tâche Kally a été interrompue.".into()),
+        };
+        self.kally_status_receiver = None;
+        self.kally_status_loading = false;
+        match result {
+            Ok(report) => {
+                self.kally_status = Some(report);
+                self.kally_status_error = None;
+            }
+            Err(error) => {
+                self.kally_status = None;
+                self.kally_status_error = Some(error);
+            }
         }
     }
 
@@ -1757,10 +1842,66 @@ impl Editor {
     }
 
     fn resources_panel(&mut self, ui: &mut egui::Ui) {
+        self.poll_kally_status();
         ui.strong("RESSOURCES");
         ui.label(
             "Images PNG, spritesheets, TileMaps, .ksp, scènes, scripts et packages du projet.",
         );
+        ui.horizontal(|ui| {
+            ui.strong("Packages Kally");
+            if ui
+                .add_enabled(
+                    !self.kally_status_loading,
+                    egui::Button::new(if self.kally_status_loading {
+                        "Lecture…"
+                    } else {
+                        "Rafraîchir"
+                    }),
+                )
+                .clicked()
+            {
+                self.refresh_kally_status();
+            }
+        });
+        if let Some(report) = &self.kally_status {
+            let color = if report.healthy {
+                Color32::LIGHT_GREEN
+            } else {
+                Color32::from_rgb(255, 166, 77)
+            };
+            ui.colored_label(
+                color,
+                if report.healthy {
+                    "Dépendances prêtes"
+                } else {
+                    "Synchronisation Kally requise"
+                },
+            );
+            if report.packages.is_empty() {
+                ui.small("Aucun package Kally déclaré.");
+            } else {
+                egui::Grid::new("kally_packages")
+                    .striped(true)
+                    .show(ui, |ui| {
+                        for package in &report.packages {
+                            let color = if package.status == "ready" {
+                                Color32::LIGHT_GREEN
+                            } else if package.status == "checksum-mismatch" {
+                                Color32::from_rgb(255, 100, 100)
+                            } else {
+                                Color32::from_rgb(255, 166, 77)
+                            };
+                            ui.label(&package.name);
+                            ui.colored_label(color, &package.status);
+                            ui.end_row();
+                        }
+                    });
+            }
+        } else if let Some(error) = &self.kally_status_error {
+            ui.colored_label(Color32::from_rgb(255, 166, 77), error);
+        } else {
+            ui.small("Rafraîchissez pour lire kally.toml, kally.lock et le cache local.");
+        }
         if let Some(path) = self.selected_resource.clone() {
             let can_manage = self.can_manage_resource(&path);
             ui.horizontal(|ui| {
@@ -2380,6 +2521,18 @@ mod tests {
 
         assert_eq!(project_root_for_document(&script), root);
         fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn reads_kally_machine_status_without_parsing_human_output() {
+        let report: KallyStatusReport = serde_json::from_str(
+            r#"{"healthy":false,"packages":[{"name":"hash","status":"ready"},{"name":"ui","status":"missing"}]}"#,
+        )
+        .unwrap();
+        assert!(!report.healthy);
+        assert_eq!(report.packages.len(), 2);
+        assert_eq!(report.packages[0].name, "hash");
+        assert_eq!(report.packages[1].status, "missing");
     }
 
     #[test]
