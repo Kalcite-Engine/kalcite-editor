@@ -87,3 +87,16 @@ public u32 editor_profile_render_us(u32 sprites, u32 tilemaps, u32 raytracers) {
 public u32 editor_profile_physics_us(u32 collisions, u32 fluids) {
     return collisions * 60 + fluids * 25;
 }
+
+// Budget levels are data policy, not toolkit policy. 0=safe, 1=warning,
+// 2=over budget; the Rust shell only selects the native UI colour.
+public u32 editor_budget_level(u32 value, u32 limit) {
+    if value < limit * 3 / 5 { return 0; }
+    if value < limit { return 1; }
+    return 2;
+}
+
+public u32 editor_resource_budget_level(u32 bytes, bool target_numworks) {
+    if target_numworks && bytes > 24000 { return 2; }
+    return 0;
+}
