@@ -46,6 +46,16 @@ public u32 editor_tile_color_rgb(u32 tile) {
     return 11184810;
 }
 
+// Scene-node palette selection is editor policy. The native shell maps a
+// dynamic scene type to a small stable category and renders this RGB value.
+// category: 0=generic, 1=collision, 2=control.
+public u32 editor_node_color_rgb(u32 category, bool selected) {
+    if selected { return 16776960; }
+    if category == 1 { return 15692402; }
+    if category == 2 { return 8841388; }
+    return 8896255;
+}
+
 // Returns -1 when a candidate is not in the requested direction; otherwise
 // returns a deterministic primary-axis weighted distance for gamepad focus.
 // direction: 0=up, 1=down, 2=left, 3=right.

@@ -48,6 +48,21 @@ fn constrained_dimension(value: f32, snap: bool) -> f32 {
     klc_editor::editor_dimension_milli((value * 1000.0).round() as i32, snap) as f32 / 1000.0
 }
 
+fn node_type_category(node_type: &str) -> u32 {
+    if node_type.contains("Collision") {
+        1
+    } else if node_type.contains("Button") || node_type.contains("Label") {
+        2
+    } else {
+        0
+    }
+}
+
+fn node_color(node_type: &str, selected: bool) -> Color32 {
+    let rgb = klc_editor::editor_node_color_rgb(node_type_category(node_type), selected);
+    Color32::from_rgb((rgb >> 16) as u8, (rgb >> 8) as u8, rgb as u8)
+}
+
 fn budget_color(level: u32) -> Color32 {
     match level {
         0 => Color32::LIGHT_GREEN,
@@ -2314,15 +2329,7 @@ impl Editor {
                 world.min + Vec2::new(x as f32, y as f32) * self.zoom,
                 Vec2::new(w as f32, h as f32) * self.zoom,
             );
-            let color = if self.selected == Some(index) {
-                Color32::YELLOW
-            } else if ty.contains("Collision") {
-                Color32::from_rgb(239, 114, 114)
-            } else if ty.contains("Button") || ty.contains("Label") {
-                Color32::from_rgb(134, 232, 172)
-            } else {
-                Color32::from_rgb(135, 190, 255)
-            };
+            let color = node_color(ty, self.selected == Some(index));
             let stroke = Stroke::new(
                 if self.selected == Some(index) {
                     2.5_f32
@@ -2621,6 +2628,23 @@ mod tests {
         assert_eq!(tile_color(0), Color32::from_rgb(49, 55, 70));
         assert_eq!(tile_color(7), Color32::from_rgb(170, 170, 170));
         assert_eq!(tile_color(8), tile_color(0));
+    }
+
+    #[test]
+    fn node_colours_use_the_klc_palette_policy() {
+        assert_eq!(
+            node_color("Node2D", false),
+            Color32::from_rgb(135, 190, 255)
+        );
+        assert_eq!(
+            node_color("CollisionShape2D", false),
+            Color32::from_rgb(239, 114, 114)
+        );
+        assert_eq!(
+            node_color("Button", false),
+            Color32::from_rgb(134, 232, 172)
+        );
+        assert_eq!(node_color("Button", true), Color32::YELLOW);
     }
 
     #[test]
