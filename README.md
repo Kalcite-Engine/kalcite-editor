@@ -16,11 +16,11 @@ versioned Kalcite core crates.
 ## KLC execution in the editor
 
 The editor is currently a native Rust host, but its viewport snap,
-zoom-dependent grid density, collision-radius, profile-estimation, and
-resource-budget policies are implemented in `src/editor_core.klc` and compiled
-to Rust during the Cargo build. This is an executable migration boundary: KLC
-owns deterministic fixed-point editor policy while the host owns platform
-windows, file I/O, and eframe integration.
+zoom-dependent grid density, resize constraints, collision-radius,
+profile-estimation, and resource-budget policies are implemented in
+`src/editor_core.klc` and compiled to Rust during the Cargo build. This is an
+executable migration boundary: KLC owns deterministic fixed-point editor
+policy while the host owns platform windows, file I/O, and eframe integration.
 Future editor subsystems can move across this boundary incrementally; the
 project does not claim a 70% KLC implementation yet.
 
