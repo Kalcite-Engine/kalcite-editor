@@ -100,3 +100,17 @@ public u32 editor_resource_budget_level(u32 bytes, bool target_numworks) {
     if target_numworks && bytes > 24000 { return 2; }
     return 0;
 }
+
+// Resize constraints share the same fixed-point snap behavior as positions.
+// Dimensions never collapse to zero even when a dragged edge crosses its
+// origin. The UI host only converts between pixels and milli-pixels.
+public i32 editor_dimension_milli(i32 value, bool snap) {
+    i32 adjusted = editor_snap_milli(value, snap);
+    if adjusted < 1000 { return 1000; }
+    return adjusted;
+}
+
+public u32 editor_fluid_budget_level(u32 particles, bool target_numworks) {
+    if target_numworks && particles > 128 { return 2; }
+    return 0;
+}

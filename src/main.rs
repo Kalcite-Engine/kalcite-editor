@@ -44,6 +44,10 @@ fn grid_step(zoom: f32) -> f32 {
     klc_editor::editor_grid_step_milli((zoom * 1000.0).round() as i32) as f32 / 1000.0
 }
 
+fn constrained_dimension(value: f32, snap: bool) -> f32 {
+    klc_editor::editor_dimension_milli((value * 1000.0).round() as i32, snap) as f32 / 1000.0
+}
+
 fn budget_color(level: u32) -> Color32 {
     match level {
         0 => Color32::LIGHT_GREEN,
@@ -2136,7 +2140,7 @@ impl Editor {
             .filter(|n| n.properties.get("type").is_some_and(|t| t == "Fluid2D"))
             .filter_map(|n| n.properties.get("particles")?.parse::<u32>().ok())
             .sum();
-        if particles > 128 && self.target_numworks {
+        if klc_editor::editor_fluid_budget_level(particles, self.target_numworks) == 2 {
             ui.colored_label(
                 Color32::RED,
                 format!("Fluid2D : {particles} particules, au-delà du budget NumWorks recommandé."),
@@ -2206,11 +2210,11 @@ impl Editor {
                     let h = prop_num(node, "height").unwrap_or(24) as f32 + delta.y;
                     node.properties.insert(
                         "width".into(),
-                        snap_to_grid(w, self.snap).max(1.0).round().to_string(),
+                        constrained_dimension(w, self.snap).round().to_string(),
                     );
                     node.properties.insert(
                         "height".into(),
-                        snap_to_grid(h, self.snap).max(1.0).round().to_string(),
+                        constrained_dimension(h, self.snap).round().to_string(),
                     );
                     if node
                         .properties
@@ -2640,5 +2644,14 @@ mod tests {
         assert_eq!(klc_editor::editor_budget_level(20_000, 20_000), 2);
         assert_eq!(klc_editor::editor_resource_budget_level(24_001, true), 2);
         assert_eq!(klc_editor::editor_resource_budget_level(24_001, false), 0);
+        assert_eq!(klc_editor::editor_fluid_budget_level(129, true), 2);
+        assert_eq!(klc_editor::editor_fluid_budget_level(129, false), 0);
+    }
+
+    #[test]
+    fn resize_constraints_are_compiled_from_klc() {
+        assert_eq!(constrained_dimension(3.9, true), 1.0);
+        assert_eq!(constrained_dimension(12.1, true), 16.0);
+        assert_eq!(constrained_dimension(-20.0, false), 1.0);
     }
 }
