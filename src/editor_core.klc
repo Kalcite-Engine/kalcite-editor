@@ -106,6 +106,14 @@ public u32 editor_budget_level(u32 value, u32 limit) {
     return 2;
 }
 
+// Native UI shells choose their own colour type, while KLC owns the semantic
+// mapping of a budget level to the shared editor palette.
+public u32 editor_budget_color_rgb(u32 level) {
+    if level == 0 { return 9498256; }
+    if level == 1 { return 16754253; }
+    return 16737380;
+}
+
 public u32 editor_resource_budget_level(u32 bytes, bool target_numworks) {
     if target_numworks && bytes > 24000 { return 2; }
     return 0;
