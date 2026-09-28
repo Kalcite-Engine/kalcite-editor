@@ -64,11 +64,8 @@ fn node_color(node_type: &str, selected: bool) -> Color32 {
 }
 
 fn budget_color(level: u32) -> Color32 {
-    match level {
-        0 => Color32::LIGHT_GREEN,
-        1 => Color32::from_rgb(255, 166, 77),
-        _ => Color32::from_rgb(255, 100, 100),
-    }
+    let rgb = klc_editor::editor_budget_color_rgb(level);
+    Color32::from_rgb((rgb >> 16) as u8, (rgb >> 8) as u8, rgb as u8)
 }
 
 fn parse_kally_status(output: std::process::Output) -> Result<KallyStatusReport, String> {
@@ -2670,6 +2667,9 @@ mod tests {
         assert_eq!(klc_editor::editor_resource_budget_level(24_001, false), 0);
         assert_eq!(klc_editor::editor_fluid_budget_level(129, true), 2);
         assert_eq!(klc_editor::editor_fluid_budget_level(129, false), 0);
+        assert_eq!(budget_color(0), Color32::LIGHT_GREEN);
+        assert_eq!(budget_color(1), Color32::from_rgb(255, 166, 77));
+        assert_eq!(budget_color(2), Color32::from_rgb(255, 100, 100));
     }
 
     #[test]
