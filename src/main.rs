@@ -2141,19 +2141,19 @@ impl Editor {
             .num_columns(3)
             .striped(true)
             .show(ui, |ui| {
-                for (name, value) in [
-                    ("Frame", f.frame_us),
-                    ("Update", f.update_us),
-                    ("Draw", f.render_us),
-                    ("Physique", f.physics_us),
-                    ("Draw calls", f.draw_calls),
-                    ("Sprites", f.sprites),
-                    ("Tuiles", f.tiles),
-                    ("Collisions", f.collision_queries),
-                    ("RAM statique", f.static_ram),
+                for (metric, name, value) in [
+                    (0, "Frame", f.frame_us),
+                    (1, "Update", f.update_us),
+                    (1, "Draw", f.render_us),
+                    (1, "Physique", f.physics_us),
+                    (1, "Draw calls", f.draw_calls),
+                    (1, "Sprites", f.sprites),
+                    (1, "Tuiles", f.tiles),
+                    (1, "Collisions", f.collision_queries),
+                    (1, "RAM statique", f.static_ram),
                 ] {
                     ui.label(name);
-                    let limit = if name == "Frame" { 16_667 } else { 20_000 };
+                    let limit = klc_editor::editor_profile_limit_us(metric);
                     ui.colored_label(
                         budget_color(klc_editor::editor_budget_level(value, limit)),
                         value.to_string(),
@@ -2697,6 +2697,12 @@ mod tests {
         assert_eq!(klc_editor::editor_profile_update_us(2, 3), 314);
         assert_eq!(klc_editor::editor_profile_render_us(4, 1, 0), 648);
         assert_eq!(klc_editor::editor_profile_physics_us(2, 3), 195);
+    }
+
+    #[test]
+    fn profiler_limits_are_compiled_from_klc() {
+        assert_eq!(klc_editor::editor_profile_limit_us(0), 16_667);
+        assert_eq!(klc_editor::editor_profile_limit_us(1), 20_000);
     }
 
     #[test]
