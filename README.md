@@ -78,10 +78,11 @@ make bundle-macos
 open "dist/Kalcite Editor.app"
 ```
 
-The generated `Info.plist` registers the `org.kalcite.project`,
-`org.kalcite.scene` (`.kscn`), and `org.kalcite.script` (`.klc`) document
-types. Copy the resulting app to `/Applications` to make LaunchServices expose
-those associations system-wide.
+The generated `Info.plist` registers the `org.kalcite.project` (`.kalcite`
+project directory), `org.kalcite.scene` (`.kscn`), and `org.kalcite.script`
+(`.klc`) document types. It includes both modern UTI declarations and legacy
+extension keys for LaunchServices compatibility. Copy the resulting app to
+`/Applications` to make those associations system-wide.
 
 When no path is supplied, the editor opens the current directory. A valid
 project contains `kalcite.toml`; use the main Kalcite CLI to create one:

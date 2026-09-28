@@ -37,8 +37,11 @@ cargo clippy --all-targets
 `kalcite-editor-info linux PREFIX` writes the freedesktop desktop entry and
 shared-MIME XML under `PREFIX/share`; `kalcite-editor-info macos BINARY APP`
 creates an `.app` bundle with its `Info.plist`. Use `make bundle-macos` for the
-release bundle. Keep its tests updated whenever a project, scene, or script
-file type is added.
+release bundle. The macOS metadata has UTI and extension keys for `.kalcite`
+project directories, `.kscn` scenes, and `.klc` scripts. `make install` also
+refreshes Linux MIME and desktop databases for a direct installation (package
+builders use `DESTDIR` and retain responsibility for that refresh). Keep its
+tests updated whenever a project, scene, or script file type is added.
 
 Changes to scene parsing, serialization, tilemaps, or inspector validation must
 include a regression test in `src/main.rs`.
