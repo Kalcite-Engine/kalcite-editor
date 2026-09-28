@@ -48,6 +48,15 @@ fn constrained_dimension(value: f32, snap: bool) -> f32 {
     klc_editor::editor_dimension_milli((value * 1000.0).round() as i32, snap) as f32 / 1000.0
 }
 
+fn image_preview_scale(available_width: f32, size: [usize; 2]) -> f32 {
+    let available_milli = (available_width.max(0.0) * 1000.0)
+        .round()
+        .min(i32::MAX as f32) as i32;
+    let width = size[0].max(1).min(i32::MAX as usize) as i32;
+    let height = size[1].max(1).min(i32::MAX as usize) as i32;
+    klc_editor::editor_image_preview_scale_milli(available_milli, width, height) as f32 / 1000.0
+}
+
 fn node_type_category(node_type: &str) -> u32 {
     if node_type.contains("Collision") {
         1
@@ -2032,9 +2041,7 @@ impl Editor {
                 self.preview_size[0], self.preview_size[1]
             ));
             let natural = Vec2::new(self.preview_size[0] as f32, self.preview_size[1] as f32);
-            let scale = (ui.available_width() / natural.x.max(1.0))
-                .min(1.0)
-                .min(360.0 / natural.y.max(1.0));
+            let scale = image_preview_scale(ui.available_width(), self.preview_size);
             ui.image((texture.id(), natural * scale));
         }
     }
@@ -2650,6 +2657,13 @@ mod tests {
         assert_eq!(grid_step(0.5), 32.0);
         assert_eq!(grid_step(1.0), 16.0);
         assert_eq!(grid_step(2.5), 8.0);
+    }
+
+    #[test]
+    fn image_preview_scale_is_compiled_from_klc() {
+        assert_eq!(image_preview_scale(1_000.0, [200, 100]), 1.0);
+        assert_eq!(image_preview_scale(1_000.0, [640, 480]), 0.75);
+        assert_eq!(image_preview_scale(0.0, [640, 480]), 0.0);
     }
 
     #[test]
