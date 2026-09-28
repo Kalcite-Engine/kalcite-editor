@@ -122,6 +122,13 @@ public u32 editor_profile_physics_us(u32 collisions, u32 fluids) {
     return collisions * 60 + fluids * 25;
 }
 
+// Profiler thresholds are product policy, not widget policy. Metric 0 is the
+// full frame budget at 60 Hz; all secondary metrics use the diagnostic budget.
+public u32 editor_profile_limit_us(u32 metric) {
+    if metric == 0 { return 16667; }
+    return 20000;
+}
+
 // Budget levels are data policy, not toolkit policy. 0=safe, 1=warning,
 // 2=over budget; the Rust shell only selects the native UI colour.
 public u32 editor_budget_level(u32 value, u32 limit) {
