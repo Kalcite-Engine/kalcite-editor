@@ -69,6 +69,17 @@ public i32 editor_node_default_height() {
     return 24;
 }
 
+// New scene nodes without an explicit transform start inside the native
+// 320×240 design frame. Keeping the origin in KLC makes hit testing, dragging,
+// and painting agree on the same deterministic fallback.
+public i32 editor_node_default_x() {
+    return 32;
+}
+
+public i32 editor_node_default_y() {
+    return 32;
+}
+
 // Returns -1 when a candidate is not in the requested direction; otherwise
 // returns a deterministic primary-axis weighted distance for gamepad focus.
 // direction: 0=up, 1=down, 2=left, 3=right.
