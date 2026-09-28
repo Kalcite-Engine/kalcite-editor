@@ -68,6 +68,14 @@ fn node_default_height() -> i16 {
     klc_editor::editor_node_default_height() as i16
 }
 
+fn node_default_x() -> i16 {
+    klc_editor::editor_node_default_x() as i16
+}
+
+fn node_default_y() -> i16 {
+    klc_editor::editor_node_default_y() as i16
+}
+
 fn node_color(node_type: &str, selected: bool) -> Color32 {
     let rgb = klc_editor::editor_node_color_rgb(node_type_category(node_type), selected);
     Color32::from_rgb((rgb >> 16) as u8, (rgb >> 8) as u8, rgb as u8)
@@ -2202,10 +2210,10 @@ impl Editor {
                         }
                         let x = prop_num(node, "x")
                             .or_else(|| prop_vec_x(node))
-                            .unwrap_or(32);
+                            .unwrap_or_else(node_default_x);
                         let y = prop_num(node, "y")
                             .or_else(|| prop_vec_y(node))
-                            .unwrap_or(32);
+                            .unwrap_or_else(node_default_y);
                         let node_type = node
                             .properties
                             .get("type")
@@ -2264,11 +2272,11 @@ impl Editor {
                 } else {
                     let x = prop_num(node, "x")
                         .or_else(|| prop_vec_x(node))
-                        .unwrap_or(32) as f32
+                        .unwrap_or_else(node_default_x) as f32
                         + delta.x;
                     let y = prop_num(node, "y")
                         .or_else(|| prop_vec_y(node))
-                        .unwrap_or(32) as f32
+                        .unwrap_or_else(node_default_y) as f32
                         + delta.y;
                     node.properties
                         .insert("x".into(), snap_to_grid(x, self.snap).round().to_string());
@@ -2340,10 +2348,10 @@ impl Editor {
                 .unwrap_or("Node");
             let x = prop_num(node, "x")
                 .or_else(|| prop_vec_x(node))
-                .unwrap_or(32);
+                .unwrap_or_else(node_default_x);
             let y = prop_num(node, "y")
                 .or_else(|| prop_vec_y(node))
-                .unwrap_or(32);
+                .unwrap_or_else(node_default_y);
             let w = prop_num(node, "width").unwrap_or_else(|| node_default_width(ty));
             let h = prop_num(node, "height").unwrap_or_else(node_default_height);
             let r = Rect::from_min_size(
@@ -2673,6 +2681,8 @@ mod tests {
         assert_eq!(node_default_width("Node2D"), 48);
         assert_eq!(node_default_width("Sprite2D"), 24);
         assert_eq!(node_default_height(), 24);
+        assert_eq!(node_default_x(), 32);
+        assert_eq!(node_default_y(), 32);
     }
 
     #[test]

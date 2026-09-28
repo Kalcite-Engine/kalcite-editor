@@ -17,7 +17,7 @@ versioned Kalcite core crates.
 
 The editor is currently a native Rust host, but its viewport snap,
 zoom-dependent grid density, resize constraints, collision-radius, node palette
-and default node geometry, profile-estimation, and budget-palette/resource-budget
+and default node geometry/position, profile-estimation, and budget-palette/resource-budget
 policies are implemented in
 `src/editor_core.klc` and compiled to Rust during the Cargo build. This is an
 executable migration boundary: KLC owns deterministic fixed-point editor
