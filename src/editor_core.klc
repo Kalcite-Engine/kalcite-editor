@@ -32,6 +32,21 @@ public i32 editor_grid_step_milli(i32 zoom_milli) {
     return 16000;
 }
 
+// Resource previews remain fully visible without allowing an oversized image
+// to dominate the inspector. Inputs and the result are milli-scale units.
+public i32 editor_image_preview_scale_milli(i32 available_width_milli, i32 width, i32 height) {
+    if available_width_milli <= 0 { return 0; }
+    i32 safe_width = width;
+    i32 safe_height = height;
+    if safe_width < 1 { safe_width = 1; }
+    if safe_height < 1 { safe_height = 1; }
+    i32 scale = available_width_milli / safe_width;
+    if scale > 1000 { scale = 1000; }
+    i32 height_scale = 360000 / safe_height;
+    if height_scale < scale { scale = height_scale; }
+    return scale;
+}
+
 // Tile colours are editor presentation policy. RGB is packed as 0xRRGGBB so
 // the Rust adapter merely converts it to the native UI colour type.
 public u32 editor_tile_color_rgb(u32 tile) {
