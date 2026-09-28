@@ -34,7 +34,7 @@ const MIME_TYPES: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 </mime-info>
 "#;
 
-const INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+const INFO_PLIST_TEMPLATE: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -45,8 +45,8 @@ const INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
   <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
   <key>CFBundleName</key><string>Kalcite Editor</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>0.14.0</string>
-  <key>CFBundleVersion</key><string>0.14.0</string>
+  <key>CFBundleShortVersionString</key><string>{VERSION}</string>
+  <key>CFBundleVersion</key><string>{VERSION}</string>
   <key>LSMinimumSystemVersion</key><string>11.0</string>
   <key>CFBundleDocumentTypes</key>
   <array>
@@ -55,18 +55,21 @@ const INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
       <key>CFBundleTypeRole</key><string>Editor</string>
       <key>LSHandlerRank</key><string>Owner</string>
       <key>LSItemContentTypes</key><array><string>org.kalcite.project</string></array>
+      <key>CFBundleTypeExtensions</key><array><string>kalcite</string></array>
     </dict>
     <dict>
       <key>CFBundleTypeName</key><string>Kalcite Scene</string>
       <key>CFBundleTypeRole</key><string>Editor</string>
       <key>LSHandlerRank</key><string>Owner</string>
       <key>LSItemContentTypes</key><array><string>org.kalcite.scene</string></array>
+      <key>CFBundleTypeExtensions</key><array><string>kscn</string></array>
     </dict>
     <dict>
       <key>CFBundleTypeName</key><string>Kalcite Script</string>
       <key>CFBundleTypeRole</key><string>Editor</string>
       <key>LSHandlerRank</key><string>Owner</string>
       <key>LSItemContentTypes</key><array><string>org.kalcite.script</string></array>
+      <key>CFBundleTypeExtensions</key><array><string>klc</string></array>
     </dict>
   </array>
   <key>UTExportedTypeDeclarations</key>
@@ -94,6 +97,10 @@ const INFO_PLIST: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
 </plist>
 "#;
 
+fn info_plist() -> String {
+    INFO_PLIST_TEMPLATE.replace("{VERSION}", env!("CARGO_PKG_VERSION"))
+}
+
 fn usage() {
     eprintln!(
         "usage:\n  kalcite-editor-info linux <prefix>\n  kalcite-editor-info macos <editor-binary> <Kalcite Editor.app>"
@@ -116,7 +123,7 @@ fn write_macos(binary: &Path, app: &Path) -> io::Result<()> {
     }
     let contents = app.join("Contents");
     let executable = contents.join("MacOS/kalcite-editor");
-    write_file(&contents.join("Info.plist"), INFO_PLIST)?;
+    write_file(&contents.join("Info.plist"), &info_plist())?;
     fs::create_dir_all(executable.parent().expect("MacOS parent"))?;
     fs::copy(binary, &executable)?;
     set_executable(&executable)
@@ -206,6 +213,10 @@ mod tests {
         assert!(plist.contains("org.kalcite.project"));
         assert!(plist.contains("org.kalcite.scene"));
         assert!(plist.contains("org.kalcite.script"));
+        assert!(plist.contains("<string>kalcite</string>"));
+        assert!(plist.contains("<string>kscn</string>"));
+        assert!(plist.contains("<string>klc</string>"));
+        assert!(plist.contains(env!("CARGO_PKG_VERSION")));
         assert!(app.join("Contents/MacOS/kalcite-editor").is_file());
         fs::remove_dir_all(root).unwrap();
     }
