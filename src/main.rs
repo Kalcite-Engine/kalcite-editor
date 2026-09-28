@@ -53,9 +53,19 @@ fn node_type_category(node_type: &str) -> u32 {
         1
     } else if node_type.contains("Button") || node_type.contains("Label") {
         2
+    } else if node_type.contains("Sprite") {
+        3
     } else {
         0
     }
+}
+
+fn node_default_width(node_type: &str) -> i16 {
+    klc_editor::editor_node_default_width(node_type_category(node_type)) as i16
+}
+
+fn node_default_height() -> i16 {
+    klc_editor::editor_node_default_height() as i16
 }
 
 fn node_color(node_type: &str, selected: bool) -> Color32 {
@@ -2196,8 +2206,14 @@ impl Editor {
                         let y = prop_num(node, "y")
                             .or_else(|| prop_vec_y(node))
                             .unwrap_or(32);
-                        let w = prop_num(node, "width").unwrap_or(48);
-                        let h = prop_num(node, "height").unwrap_or(24);
+                        let node_type = node
+                            .properties
+                            .get("type")
+                            .map(String::as_str)
+                            .unwrap_or("Node");
+                        let w = prop_num(node, "width")
+                            .unwrap_or_else(|| node_default_width(node_type));
+                        let h = prop_num(node, "height").unwrap_or_else(node_default_height);
                         Rect::from_min_size(
                             response.rect.center()
                                 + self.pan
@@ -2218,8 +2234,16 @@ impl Editor {
                 let delta = ui.input(|input| input.pointer.delta()) / self.zoom;
                 let node = &mut self.scene.node_defs[index];
                 if ui.input(|input| input.modifiers.shift) {
-                    let w = prop_num(node, "width").unwrap_or(48) as f32 + delta.x;
-                    let h = prop_num(node, "height").unwrap_or(24) as f32 + delta.y;
+                    let node_type = node
+                        .properties
+                        .get("type")
+                        .map(String::as_str)
+                        .unwrap_or("Node");
+                    let w = prop_num(node, "width").unwrap_or_else(|| node_default_width(node_type))
+                        as f32
+                        + delta.x;
+                    let h = prop_num(node, "height").unwrap_or_else(node_default_height) as f32
+                        + delta.y;
                     node.properties.insert(
                         "width".into(),
                         constrained_dimension(w, self.snap).round().to_string(),
@@ -2320,8 +2344,8 @@ impl Editor {
             let y = prop_num(node, "y")
                 .or_else(|| prop_vec_y(node))
                 .unwrap_or(32);
-            let w = prop_num(node, "width").unwrap_or(if ty.contains("Sprite") { 24 } else { 48 });
-            let h = prop_num(node, "height").unwrap_or(24);
+            let w = prop_num(node, "width").unwrap_or_else(|| node_default_width(ty));
+            let h = prop_num(node, "height").unwrap_or_else(node_default_height);
             let r = Rect::from_min_size(
                 world.min + Vec2::new(x as f32, y as f32) * self.zoom,
                 Vec2::new(w as f32, h as f32) * self.zoom,
@@ -2642,6 +2666,13 @@ mod tests {
             Color32::from_rgb(134, 232, 172)
         );
         assert_eq!(node_color("Button", true), Color32::YELLOW);
+    }
+
+    #[test]
+    fn node_default_geometry_is_compiled_from_klc() {
+        assert_eq!(node_default_width("Node2D"), 48);
+        assert_eq!(node_default_width("Sprite2D"), 24);
+        assert_eq!(node_default_height(), 24);
     }
 
     #[test]
